@@ -10,7 +10,7 @@ from torch.nn.utils.rnn import pad_packed_sequence as unpack
 from allennlp.modules.elmo import Elmo, batch_to_ids
 import os
 from Layer.conditional_random_field import *
-from Layer.Share_Bilstm_Layer import *
+from Layer.SCLSTM_Layer import *
 from Layer.Embedding_Layer import *
 from Layer.Highway_Layer import *
 import pickle
