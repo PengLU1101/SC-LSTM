@@ -4,7 +4,8 @@
 This repository contains the code used for multi-task sequence labeling experiments in [SC-LSTM: Learning Task-Specific Representation in Multi-task Learning for Sequence Labeling](https://www.aclweb.org/anthology/N19-1249) paper, partly forked from the [OpenNMT-py](https://github.com/OpenNMT/OpenNMT-py).
 If you use this code or our results in your research, we'd appreciate if you cite our apper as following:
 
-'''
+
+```
 @inproceedings{lu2019sc,
   title={SC-LSTM: Learning Task-Specific Representations in Multi-Task Learning for Sequence Labeling},
   author={Lu, Peng and Bai, Ting and Langlais, Philippe},
@@ -12,7 +13,7 @@ If you use this code or our results in your research, we'd appreciate if you cit
   pages={2396--2406},
   year={2019}
 }
-
+```
 ## Requirements
 Python 3.5, PyTorch 0.3 and Allennlp are required for the current repo.
 
