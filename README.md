@@ -23,5 +23,5 @@ Python 3.5, PyTorch 0.3 and Allennlp (For ELMo embeddings) are required for the 
 
 2. Train the model:
           command: ```python main_uni.py```
-   The default setting is in 'config_uni.py' file.
+   The default setting is in ```config_uni.py``` file.
           
