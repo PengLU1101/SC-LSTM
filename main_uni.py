@@ -29,7 +29,7 @@ parser.add_argument('--decay', type=str, default='normal', help='decay')
 parser.add_argument('--dropout', type=float, default=0.3, help='dropout')
 parser.add_argument('--weight', type=float, default=1, help='weight')
 parser.add_argument('--momentum', type=float, default=.9, help='momentum')
-
+parser.add_argument('--seed', type=int, default=1111, help='random seed')
 args = parser.parse_args()
 
 pkl_path = IO["pkl_path"]
@@ -50,8 +50,7 @@ def show_result(list1, list2, list3, list4, id2task, logger=None, step=None):
         print("%s prec: %f, rec: %f, F1: %f, acc: %f" %(id2task[i], t[0]*100, t[1]*100, t[2]*100, t[3]*100))
         #for idx, idc in enumerate(indicator):
         #    logger.scalar_summary(id2task[i]+"_"+idc, t[idx]*100, step+1)
-
-
+torch.manual_seed(args.seed)
 
 def main():
     data_holder, task2id, id2task, num_feat, num_voc, num_char, tgt_dict, embeddings = Dataloader_elmo1.multitask_dataloader(pkl_path, num_task=num_task, batch_size=BATCH_SIZE)
