@@ -10,6 +10,7 @@ import random
 import argparse
 from statistics import mean
 import math
+import os
 
 import Model_s
 import Dataloader_elmo1
@@ -18,7 +19,8 @@ from allennlp.training.optimizers import DenseSparseAdam
 
 
 from logger import Logger
-import util.cal_f1
+from util import cal_f1
+from util.preprocessing import perpareDataset
 from config_uni import *
 
 parser = argparse.ArgumentParser(description='multi_tagger')
@@ -29,7 +31,7 @@ parser.add_argument('--decay', type=str, default='normal', help='decay')
 parser.add_argument('--dropout', type=float, default=0.3, help='dropout')
 parser.add_argument('--weight', type=float, default=1, help='weight')
 parser.add_argument('--momentum', type=float, default=.9, help='momentum')
-parser.add_argument('--seed', type=int, default=1111, help='random seed')
+
 args = parser.parse_args()
 
 pkl_path = IO["pkl_path"]
@@ -50,9 +52,12 @@ def show_result(list1, list2, list3, list4, id2task, logger=None, step=None):
         print("%s prec: %f, rec: %f, F1: %f, acc: %f" %(id2task[i], t[0]*100, t[1]*100, t[2]*100, t[3]*100))
         #for idx, idc in enumerate(indicator):
         #    logger.scalar_summary(id2task[i]+"_"+idc, t[idx]*100, step+1)
-torch.manual_seed(args.seed)
+
+
 
 def main():
+    pkl_path = perpareDataset(embeddingsPath, datasets_config)
+
     data_holder, task2id, id2task, num_feat, num_voc, num_char, tgt_dict, embeddings = Dataloader_elmo1.multitask_dataloader(pkl_path, num_task=num_task, batch_size=BATCH_SIZE)
     para = model_para
     task2label = {"conll2000": "chunk", "unidep": "POS", "conll2003": "NER"}
@@ -70,17 +75,13 @@ def main():
     params = list(filter(lambda p: p.requires_grad, model.parameters()))
     num_params = sum(p.numel() for p in model.parameters())
     print(model)
-    print("Num of paras:", num_params)
-    print(model.concat_flag)
     def lr_decay(optimizer, epoch, decay_rate=0.05, init_lr=0.015):
         lr = init_lr/(1+decay_rate*epoch)
-        print(" Learning rate is set as:", lr)
         for param_group in optimizer.param_groups:
             param_group['lr'] = lr
         return optimizer
     def exp_lr_decay(optimizer, epoch, decay_rate=0.05, init_lr=0.015):
         lr = init_lr * decay_rate ** epoch
-        print(" Learning rate is set as:", lr)
         for param_group in optimizer.param_groups:
             param_group['lr'] = lr
         return optimizer
@@ -98,7 +99,7 @@ def main():
             calculate_loss = None
         print("Start training...")
         print('-' * 60)
-        KLLoss = None#nn.KLDivLoss()
+        KLLoss = None
         start_point = time.time()
         for epoch_idx in range(NUM_EPOCH):
             
@@ -107,7 +108,15 @@ def main():
                     model_optim = exp_lr_decay(model_optim, epoch_idx)
                 elif args.decay == "normal":
                     model_optim = lr_decay(model_optim, epoch_idx)
-            Pre, Rec, F1, loss_list = run_epoch(model, data_holder, model_optim, calculate_loss, KLLoss, para, epoch_idx, id2task, logger)
+            Pre, Rec, F1, loss_list = run_epoch(model, 
+                                                data_holder, 
+                                                model_optim, 
+                                                calculate_loss, 
+                                                KLLoss, 
+                                                para, 
+                                                epoch_idx, 
+                                                id2task, 
+                                                logger)
 
             use_time = time.time() - start_point
             print("Time using: %f mins" %(use_time/60))
@@ -154,7 +163,14 @@ def update_log(model, logger, loss, step):
         logger.histo_summary(tag+'/grad', value.grad.data.cpu().numpy(), step+1)
 
 
-def run_epoch(model, data_holder, model_optim, calculate_loss, KLLoss, para, epoch_idx, id2task, logger):####
+def run_epoch(model, 
+              data_holder, 
+              model_optim, 
+              calculate_loss, 
+              KLLoss, para, 
+              epoch_idx, 
+              id2task, 
+              logger):####
 
     model.train()
     train_data, train_lens = extract_data(data_holder, "train")
@@ -225,12 +241,12 @@ def infer(model, data_holder, name):
                 #src_seqs, src_masks, src_feats, tgt_seqs, tgt_masks, src_chars = wrap_variable(True, src_seqs, src_masks, src_feats, tgt_seqs, tgt_masks, src_chars)
                 preds = model.predict(src_seqs, src_masks, src_feats, src_chars,tgt_seqs, tgt_masks, i, src_tokens)
                 if CRF_FLAG:
-                    prec_num, prec_den, rec_num, rec_den, correct_labels, num_label = util.cal_f1.evaluate_acc(tgt_list, preds)
+                    prec_num, prec_den, rec_num, rec_den, correct_labels, num_label = cal_f1.evaluate_acc(tgt_list, preds)
                 else:
-                    prec_num, prec_den, rec_num, rec_den, correct_labels, num_label = util.cal_f1.evaluate_acc_(tgt_seqs, preds, src_masks)
+                    prec_num, prec_den, rec_num, rec_den, correct_labels, num_label = cal_f1.evaluate_acc_(tgt_seqs, preds, src_masks)
                 confusion_list += [prec_num, prec_den, rec_num, rec_den, correct_labels, num_label]
 
-            prec, rec, f1, acc = util.cal_f1.eval_f1(sum(confusion_list[0::6]), sum(confusion_list[1::6]), sum(confusion_list[2::6]), sum(confusion_list[3::6]), sum(confusion_list[4::6]), sum(confusion_list[5::6]))
+            prec, rec, f1, acc = cal_f1.eval_f1(sum(confusion_list[0::6]), sum(confusion_list[1::6]), sum(confusion_list[2::6]), sum(confusion_list[3::6]), sum(confusion_list[4::6]), sum(confusion_list[5::6]))
             prf_list += [prec, rec, f1, acc]
     return prf_list[0::4], prf_list[1::4], prf_list[2::4], prf_list[3::4]
 
