@@ -20,7 +20,31 @@ Python 3.5, PyTorch 0.4 and Allennlp (For ELMo embeddings) are required for the 
 ## Steps
 
 1. Preprossing data: NER {CoNLL2003}, Chunking {CoNLL2000} and POS {UD English POS}
-    Put CoNLL2003/CoNLL2000/Unidep datasets in ```./data/``` , put embedding files like ```glove.6B.100d.txt``` in  ```./data/pkl```
+    The files should formatted as same as the CoNLL 2000 dataset.
+    For example,
+    ```
+
+    Rockwell NNP B-NP
+    International NNP I-NP
+    Corp. NNP I-NP
+    's POS B-NP
+    Tulsa NNP I-NP
+    unit NN I-NP
+    said VBD B-VP
+    it PRP B-NP
+    signed VBD B-VP
+    a DT B-NP
+    tentative JJ I-NP
+    agreement NN I-NP
+    extending VBG B-VP
+    its PRP$ B-NP
+    contract NN I-NP
+    with IN B-PP
+    Boeing NNP B-NP
+    Co. NNP I-NP
+    ```
+
+    Then put CoNLL2003/CoNLL2000/Unidep datasets in ```./data/``` , put embedding files like ```glove.6B.100d.txt``` in  ```./data/pkl```
     You can change training groups by delete specific tasks in 'the datasets_config' of file ```config_uni.py```
 
 2. Train the model:
