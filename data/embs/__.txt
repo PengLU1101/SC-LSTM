@@ -1,0 +1,2 @@
+Put the pre-trained word embeddings file like 'glove/senna' in this folder.
+
