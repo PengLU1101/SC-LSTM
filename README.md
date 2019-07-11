@@ -15,7 +15,7 @@ If you use this code or our results in your research, we'd appreciate if you cit
 }
 ```
 ## Requirements
-Python 3.5, PyTorch 0.4 and Allennlp (For ELMo embeddings) are required for the current repo.
+Python 3.5+, PyTorch 0.4 and Allennlp (For ELMo embeddings) are required for the current repo.
 
 ## Steps
 
