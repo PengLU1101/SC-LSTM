@@ -45,7 +45,7 @@ Python 3.5+, PyTorch 0.4 and Allennlp (For ELMo embeddings) are required for the
     ```
 
     Then put CoNLL2003/CoNLL2000/Unidep datasets in ```./data/``` , put embedding files like ```glove.6B.100d.txt``` in  ```./data/emb```
-    You can change training groups by delete specific tasks in 'the datasets_config' of file ```config_uni.py```
+    You can change training groups by delete specific tasks in the dict:datasets_config of file ```config_uni.py```
 
 2. Train the model:
           command: ```python main_uni.py```
